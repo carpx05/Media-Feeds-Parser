@@ -1,0 +1,22 @@
+media-parser/
+
+# Ignore environment variable files
+.env
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyd
+
+# Ignore virtual environment directories
+media-parser/Include/
+media-parser/Lib/
+media-parser/Scripts/
+media-parser/pyvenv.cfg
+
+# Ignore log files
+*.log
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
