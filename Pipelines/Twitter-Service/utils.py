@@ -105,4 +105,17 @@ class TwitterService:
 
             tweet_data = tweet_element.text
             self.parse_tweet(tweet_data)
+            self.extract_tweet_media(tweet_element)
 
+    def extract_tweet_media(self, tweet_element):
+        """.env"""
+        try:
+            media_elements = tweet_element.find_elements(By.CSS_SELECTOR, "img, video")
+            for idx, media in enumerate(media_elements):
+                media_src = media.get_attribute('src')
+                if idx == 0:
+                    print(f"Profile Image: {media_src}")
+                else:
+                    print(f"Media {idx}: {media_src}")
+        except Exception as _:
+            print("Media: Not found")
