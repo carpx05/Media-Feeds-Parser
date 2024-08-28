@@ -20,3 +20,7 @@ media-parser/pyvenv.cfg
 # Ignore OS-specific files
 .DS_Store
 Thumbs.db
+
+# Ignore test files
+test_*.py
+trial_*.py

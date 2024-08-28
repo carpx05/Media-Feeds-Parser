@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver import ChromeOptions, Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 from config import Config
 
@@ -20,6 +21,7 @@ class TwitterService:
         # Initialize the Selenium WebDriver instance
         self.driver = webdriver.Chrome()
         self.tweet_data = tweet_data.strip()
+        self.wait = WebDriverWait(self.driver, 10)
 
     def perform_login(self, username, password, email):
         """
@@ -36,7 +38,7 @@ class TwitterService:
         """
         try:
             self.driver.get(Config.LOGIN_TWITTER)
-            username_input = WebDriverWait(self.driver, 20).until(
+            username_input = self.wait.until(
                 EC.visibility_of_element_located(
                     (By.CSS_SELECTOR, 'input[autocomplete="username"]')
                 )
@@ -53,14 +55,14 @@ class TwitterService:
             )
             password_input.send_keys(password)
             password_input.send_keys(Keys.ENTER)
-            log(TAG, LogType.INFO, f"Password, Entered.")            
+            log(TAG, LogType.INFO, f"Password, Entered.")
             time.sleep(5)
         except Exception as e:
             log(TAG, LogType.WARNING, f"Password, An error occurred: {e}")
             email_input = self.driver.find_element(By.TAG_NAME, "input")
             email_input.send_keys(email)
             email_input.send_keys(Keys.RETURN)
-            log(TAG, LogType.INFO, f"Email, Entered.")   
+            log(TAG, LogType.INFO, f"Email, Entered.")
             time.sleep(5)
 
             password_input = self.driver.find_element(
@@ -68,7 +70,7 @@ class TwitterService:
             )
             password_input.send_keys(password)
             password_input.send_keys(Keys.ENTER)
-            log(TAG, LogType.INFO, f"Password, Entered.")   
+            log(TAG, LogType.INFO, f"Password, Entered.")
             time.sleep(5)
 
     def navigate_to_home(self):
@@ -76,7 +78,7 @@ class TwitterService:
         Navigates to the home page of the application.
         """
         self.driver.get(Config.HOME_TWITTER)
-        log(TAG, LogType.INFO, f"Navigated, Twitter Home.")   
+        log(TAG, LogType.INFO, f"Navigated, Twitter Home.")
 
     def scroll_and_load_timeline(self, n=5):
         """
@@ -104,7 +106,7 @@ class TwitterService:
         tweet_elements = self.driver.find_elements(
             By.XPATH, "//div[@data-testid='cellInnerDiv']"
         )
-        log(TAG, LogType.INFO, f"{len(tweet_elements)} tweets found.")   
+        log(TAG, LogType.INFO, f"{len(tweet_elements)} tweets found.")
         for tweet_element in tweet_elements:
             tweet_data = tweet_element.text
             extracted_text = self.parse_tweet(tweet_data)
@@ -134,9 +136,9 @@ class TwitterService:
                 )
                 time_posted_str = time_posted.strftime("%Y-%m-%d %H:%M:%S")
         except ValueError as e:
-            log(TAG, LogType.ERROR, f"An error occured while parsing time_posted: {e}")  
+            log(TAG, LogType.ERROR, f"An error occured while parsing time_posted: {e}")
             time_posted_str = None
-        
+
         tweet_text_lines = lines[4:-5]
         tweet_text = " ".join(line.strip() for line in tweet_text_lines)
 
@@ -170,8 +172,8 @@ class TwitterService:
                     media_data["media"].append(media_src)
                 else:
                     media_data["media"].append("Not found")
-            log(TAG, LogType.INFO, f"Extracted media: {len(media_data)} items.")  
+            log(TAG, LogType.INFO, f"Extracted media: {len(media_data)} items.")
         except Exception as _:
             media_data["media"].append("Not found")
-            log(TAG, LogType.WARNING, f"Media not found.")  
+            log(TAG, LogType.WARNING, f"Media not found.")
         return media_data
