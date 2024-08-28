@@ -3,7 +3,7 @@ import sys
 import os
 from utils import TwitterService
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 from selenium import webdriver
 from config import Config
@@ -16,13 +16,16 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 
-
 print(Config.USERNAME_TWITTER)
 print(Config.PASSWORD_TWITTER)
 print(Config.EMAIL_TWITTER)
 driver = webdriver.Chrome()
 driver.get("https://x.com/i/flow/login")
-username_input = WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'input[autocomplete="username"]')))
+username_input = WebDriverWait(driver, 20).until(
+    EC.visibility_of_element_located(
+        (By.CSS_SELECTOR, 'input[autocomplete="username"]')
+    )
+)
 username_input.send_keys(Config.USERNAME_TWITTER)
 username_input.send_keys(Keys.ENTER)
 time.sleep(2)
