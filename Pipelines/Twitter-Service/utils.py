@@ -62,6 +62,30 @@ class TwitterService:
         """
         self.driver.get("https://x.com/home")
 
+    def scroll_and_load_timeline(self, n=5):
+        """
+        Scrolls the timeline and loads more tweets.
+        """
+        for _ in range(n):
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(2)
+
+    def parse_timeline(self, total_scroll=5):
+        """
+        Parses the timeline of the user and extracts relevant tweet information.
+        MEDIA ELEMENTS ARE NOT SUPPORTED IN THIS VERSION.
+        """
+        self.navigate_to_home()
+        time.sleep(5)
+        
+        self.scroll_and_load_timeline(total_scroll)
+        tweet_elements = self.driver.find_elements(By.XPATH, "//div[@data-testid='cellInnerDiv']")
+        for tweet_element in tweet_elements:
+
+            tweet_data = tweet_element.text
+            extracted_text = self.parse_tweet(tweet_data)
+            extracted_media = self.extract_tweet_media(tweet_element)
+
     def parse_tweet(self, tweet_data):
         """
         Parses the tweet data and extracts relevant information.
@@ -94,7 +118,6 @@ class TwitterService:
         retweets = lines[-3].strip()
         likes = lines[-2].strip()
         reach = lines[-1].strip()
-
         return {
             "username": username,
             "userid": userid,
@@ -106,29 +129,24 @@ class TwitterService:
             "reach": reach
         }
 
-
-    def parse_timeline(self):
-        """
-        Parses the timeline of the user and extracts relevant tweet information.
-        MEDIA ELEMENTS ARE NOT SUPPORTED IN THIS VERSION.
-        """
-        self.navigate_to_home()
-        tweet_elements = self.driver.find_elements(By.XPATH, "//div[@data-testid='cellInnerDiv']")
-        for tweet_element in tweet_elements:
-
-            tweet_data = tweet_element.text
-            extracted_text = self.parse_tweet(tweet_data)
-            self.extract_tweet_media(tweet_element)
-
     def extract_tweet_media(self, tweet_element):
-        """.env"""
+        """
+        Extracts media elements from a tweet element.
+        """
+        media_data = {
+            "profile_image": None,
+            "media": []
+        }
         try:
             media_elements = tweet_element.find_elements(By.CSS_SELECTOR, "img, video")
             for idx, media in enumerate(media_elements):
                 media_src = media.get_attribute('src')
                 if idx == 0:
-                    print(f"Profile Image: {media_src}")
+                    media_data["profile_image"] = media_src
+                elif media_src:
+                    media_data["media"].append(media_src)
                 else:
-                    print(f"Media {idx}: {media_src}")
+                    media_data["media"].append("Not found")
         except Exception as _:
-            print("Media: Not found")
+            media_data["media"].append("Not found")
+        return media_data
