@@ -11,7 +11,7 @@ class TwitterService:
     """
     A class to represent a Twitter service.
     """
-    def __init__(self):
+    def __init__(self, tweet_data):
         # Initialize the Selenium WebDriver instance
         self.driver = webdriver.Chrome()
         self.tweet_data = tweet_data.strip()
@@ -65,34 +65,47 @@ class TwitterService:
     def parse_tweet(self, tweet_data):
         """
         Parses the tweet data and extracts relevant information.
+        Returns a dictionary containing the extracted data.
         """
 
         lines = self.tweet_data.strip().splitlines()
 
         username = lines[0].replace("Tweet Text: ", "").strip()
         userid = lines[1].strip()
-        hours_ago = int(lines[3].replace("h", "").strip())
+        time_info = lines[3].strip()
 
+        try:
+            if 'h' in time_info:
+                hours_ago = int(time_info.replace("h", "").strip())
+                current_time = datetime.now()
+                time_posted = current_time - timedelta(hours=hours_ago)
+
+            else:
+                time_posted = datetime.strptime(time_info + f" {datetime.now().year}", '%b %d %Y')
+        except ValueError as e:
+            print(f"Error parsing time information: {e}")
+            return None
+        
+        time_posted_str = time_posted.strftime('%Y-%m-%d %H:%M:%S')
         tweet_text_lines = lines[4:-5]  
         tweet_text = ' '.join(line.strip() for line in tweet_text_lines)
-
-        current_time = datetime.now()
-        time_posted = current_time - timedelta(hours=hours_ago)
-        time_posted_str = time_posted.strftime('%Y-%m-%d %H:%M:%S')
 
         replies = lines[-4].strip()
         retweets = lines[-3].strip()
         likes = lines[-2].strip()
         reach = lines[-1].strip()
 
-        print(f"Username: {username}")
-        print(f"User ID: {userid}")
-        print(f"Time Posted (Approx.): {time_posted_str}")
-        print(f"Tweet Text: {tweet_text}")
-        print(f"Replies: {replies}")
-        print(f"Retweets: {retweets}")
-        print(f"Likes: {likes}")
-        print(f"Reach: {reach}\n")
+        return {
+            "username": username,
+            "userid": userid,
+            "time_posted": time_posted_str,
+            "tweet_text": tweet_text,
+            "replies": replies,
+            "retweets": retweets,
+            "likes": likes,
+            "reach": reach
+        }
+
 
     def parse_timeline(self):
         """
@@ -104,7 +117,7 @@ class TwitterService:
         for tweet_element in tweet_elements:
 
             tweet_data = tweet_element.text
-            self.parse_tweet(tweet_data)
+            extracted_text = self.parse_tweet(tweet_data)
             self.extract_tweet_media(tweet_element)
 
     def extract_tweet_media(self, tweet_element):
