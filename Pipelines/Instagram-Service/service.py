@@ -49,9 +49,20 @@ class InstagramService:
                     (By.CSS_SELECTOR, 'input[name="password"]')
                 )
             ).send_keys(password + Keys.ENTER)
-            self.wait.until(
-                EC.visibility_of_element_located((By.XPATH, '//div[text()="Not Now"]'))
-            ).click()
+            try:
+                element = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.XPATH, "//div[@role='button' and contains(@class, 'x1i10hfl')]"))
+                )
+                element.click()
+            except Exception as _:
+                log(TAG, LogType.WARNING, f"remember login info not required.")
+            try:
+                button = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, '_a9--') and text()='Not Now']"))
+                )
+                button.click()
+            except Exception as _:
+                log(TAG, LogType.WARNING, f"Notification not required.")
             log(TAG, LogType.INFO, "Logged in successfully.")
         except Exception as e:
             log(TAG, LogType.ERROR, f"An error occurred while logging in: {e}")
