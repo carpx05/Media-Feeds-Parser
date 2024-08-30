@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 from config import Config
+from utils.logger import LogType, log
 
 TAG = "Instagram-Service/service.py"
 
@@ -37,17 +38,17 @@ class InstagramService:
         """
 
         try:
-            self.driver.get(Config.LOGIN_INSTAGRAM)
+            self.driver.get(username)
             self.wait.until(
                 EC.presence_of_element_located(
                     (By.CSS_SELECTOR, 'input[name="username"]')
                 )
-            ).send_keys(Config.USERNAME_INSTAGRAM + Keys.ENTER)
+            ).send_keys(password + Keys.ENTER)
             self.wait.until(
                 EC.presence_of_element_located(
                     (By.CSS_SELECTOR, 'input[name="password"]')
                 )
-            ).send_keys(Config.PASSWORD_INSTAGRAM + Keys.ENTER)
+            ).send_keys(password + Keys.ENTER)
             self.wait.until(
                 EC.visibility_of_element_located((By.XPATH, '//div[text()="Not Now"]'))
             ).click()
