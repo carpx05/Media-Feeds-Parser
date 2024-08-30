@@ -104,3 +104,223 @@ class InstagramService:
         time.sleep(1)
 
         return self.driver
+
+    def navigate_to_explore(self):
+        """
+        Navigates to the explore page of the application.
+        """
+        try:
+            self.driver.get(Config.EXPLORE_INSTAGRAM)
+            log(TAG, LogType.INFO, "Navigated, Instagram Explore.")
+        except Exception as e:
+            log(
+                TAG,
+                LogType.ERROR,
+                f"An error occurred while navigating to the explore page: {e}",
+            )
+
+    def _fetch_posts_urls(self, n=5):
+        """
+        Fetches the posts from any Instagram page.
+        """
+        try:
+            post_elements = driver.find_elements(By.CSS_SELECTOR, "a[href*='/p/']")
+            post_urls = [post.get_attribute('href') for post in post_elements]
+            log(TAG, LogType.INFO, f"Posts fetched: {len(post_urls)}")
+            return post_urls
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred while fetching posts: {e}")
+
+    def _scroll_page(self, n=5):
+        """
+        Scrolls the page n times.
+        """
+        try:
+            for _ in range(n):
+                self.driver.execute_script(
+                    "window.scrollTo(0, document.body.scrollHeight);"
+                )
+                log(TAG, LogType.INFO, f"Scrolled, {n} times.")
+                time.sleep(2)
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred while scrolling the page: {e}")
+
+    def navigate_to_profile(self):
+        """
+        Navigates to the profile page of the application.
+        """
+        try:
+            self.driver.get(f"https://www.instagram.com/{Config.PROFILE_INSTAGRAM}/")
+            log(TAG, LogType.INFO, "Navigated, Instagram Profile.")
+        except Exception as e:
+            log(
+                TAG,
+                LogType.ERROR,
+                f"An error occurred while navigating to the profile page: {e}",
+            )
+
+    def _get_post_urls(self):
+        """
+        Fetches the post URLs from the profile page.
+        """
+        try:
+            _scroll_to_bottom()
+            post_elements = self.driver.find_elements(By.CSS_SELECTOR, "a[href*='/p/']")
+            post_urls = [post.get_attribute("href") for post in post_elements]
+            log(TAG, LogType.INFO, f"Posts fetched: {len(post_urls)}")
+            return post_urls
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred while fetching posts: {e}")
+
+    def _scroll_to_bottom(self, pause_time=2):
+        """Scrolls to the bottom of the page using Selenium WebDriver.
+        
+        Args:
+            driver (webdriver): The Selenium WebDriver instance.
+            pause_time (int): Time to wait (in seconds) after scrolling to the bottom.
+        """
+        try:
+            last_height = driver.execute_script("return document.body.scrollHeight")
+
+            while True:
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(pause_time)
+                new_height = driver.execute_script("return document.body.scrollHeight")
+                if new_height == last_height:
+                    break
+                last_height = new_heightelf.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                log(TAG, LogType.INFO, "Scrolled to the bottom.")
+
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred while scrolling to the bottom: {e}")
+
+        def _extract_post_details(self, post_url):
+            """
+            Extracts the details from a post.
+            WARNING: This method only gives the media URL of the first slide of a carousel post.
+            """
+            try:
+                self.driver.get(post_url)
+                time.sleep(2)
+                username = self._extract_post_username()
+                media_url = self._extract_post_media_url()
+                time_posted = self._extract_post_time_posted()
+                likes = self._extract_post_likes()
+                location = self._extract_post_location()
+                blue_tick = self._is_post_profile_verified()
+                caption = self._extract_post_caption()
+                # todo: Extract comments and hashtags
+                post_details = {
+                    "username": username,
+                    "blue_tick": blue_tick,
+                    "media_url": media_url,
+                    "time_posted": time_posted,
+                    "likes": likes,
+                    "location": location,
+                    "caption": caption,
+                }
+                
+                log(TAG, LogType.INFO, f"Details extracted: {post_details}")
+                return post_details
+            except Exception as e:
+                log(TAG, LogType.ERROR, f"An error occurred while extracting details: {e}")
+
+        def _extract_post_username(self):
+            """
+            Extracts the username from a post.
+            """
+            try:
+                username = driver.find_element(By.XPATH, '//span[contains(@class, "_ap3a _aaco _aacw _aacx _aad7 _aade")]')
+                log(TAG, LogType.INFO, f"Username extracted: {username.text}")
+                return username.text
+            except Exception as e:
+                log(TAG, LogType.ERROR, f"An error occurred while extracting username: {e}")
+                return None
+
+        def _extract_post_media_url(self):
+            """
+            Extracts the media from a post.
+            Can be either an image or a video.
+            Returns:
+                str: The URL of the image or BLOB of the video.
+            """
+            try: 
+                video_element = driver.find_element(By.XPATH, '//video[@class="x1lliihq x5yr21d xh8yej3"]')
+                video_url = video_element.get_attribute("src")
+                log(TAG, LogType.INFO, f"Media extracted, video: {video_url}")
+                return media_url
+            except Exception as e:
+                image_element = driver.find_element(By.XPATH, '//img[@class="x5yr21d xu96u03 x10l6tqk x13vifvy x87ps6o xh8yej3"]')
+                image_url = image_element.get_attribute('src')
+                log(TAG, LogType.INFO, f"Media extracted, image: {image_url}")
+                return image_url
+        
+        def _extract_post_time_posted(self):
+            """
+            Extracts the times posted from a post.
+            """
+            try:
+                time_element = driver.find_element(By.XPATH, '//time[@class="x1p4m5qa"]')
+                time_posted = time_element.get_attribute("datetime")
+                log(TAG, LogType.INFO, f"Time posted: {time_posted}")
+                return time_posted
+            except Exception as e:
+                log(TAG, LogType.ERROR, f"An error occurred while extracting time posted: {e}")
+                return None
+                
+        def _extract_post_likes(self):
+            """
+            Extracts the number of likes from a post.
+            """
+            try:
+                likes_element = likes = driver.find_element(By.XPATH, '//span[contains(@class, "xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x1hl2dhg x16tdsg8 x1vvkbs")]')
+                likes = likes_element.text
+                log(TAG, LogType.INFO, f"Likes extracted: {likes}")
+                return likes
+            except Exception as e:
+                log(TAG, LogType.ERROR, f"An error occurred while extracting likes: {e}")
+                return None
+
+        def _extract_post_caption(self):
+            """
+            Extracts the caption from a post.
+            """
+            try:
+                caption_element = driver.find_element(By.XPATH, "//span[contains(@class, 'x193iq5w xeuugli x1fj9vlw x13faqbe x1vvkbs xt0psk2 x1i0vuye xvs91rp xo1l8bm x5n08af x10wh9bi x1wdrske x8viiok x18hxmgj')]")
+                caption = caption_element.text
+                log(TAG, LogType.INFO, f"Caption extracted: {caption}")
+                return caption
+            except Exception as e:
+                log(TAG, LogType.ERROR, f"An error occurred while extracting caption: {e}")
+                return None
+
+        def _extract_post_location(self):
+            """
+            Extracts the location from a post.
+            """
+            try:
+                location_element = driver.find_element(By.CSS_SELECTOR, "a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz.x5n08af.x9n4tj2._a6hd")
+                location = location_element.text
+                log(TAG, LogType.INFO, f"Location extracted: {location}")
+                return location
+            except Exception as e:
+                log(TAG, LogType.ERROR, f"An error occurred while extracting location: {e}")
+                return None
+
+        def _is_post_profile_verified(self):
+            """
+            Checks if the profile is verified.
+            """
+            try:
+                svg_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'svg.x1lliihq.x1n2onr6[aria-label="Verified"]')))
+
+                # Extract the text from the aria-label attribute
+                if "Verified" == svg_element.get_attribute('aria-label'):
+                    log(TAG, LogType.INFO, "Profile is verified.")                    
+                    return True
+                log(TAG, LogType.INFO, "Profile is not verified.")
+                return False
+            except Exception as e:
+                log(TAG, LogType.INFO, "Profile is not verified.")
+                return False
+        

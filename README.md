@@ -18,8 +18,8 @@ This project is the backend for the Media-Feeds-Parser, which processes and pars
 in-progress
 
 ## Media Supported
-Twitter 🚧
-Instagram 🚧
+- Twitter 🚧
+- Instagram 🚧
 
 ## Installation
 1. Clone the repository:
