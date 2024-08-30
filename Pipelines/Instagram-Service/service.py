@@ -120,18 +120,6 @@ class InstagramService:
                 f"An error occurred while navigating to the explore page: {e}",
             )
 
-    def _fetch_posts_urls(self, n=5):
-        """
-        Fetches the posts from any Instagram page.
-        """
-        try:
-            post_elements = driver.find_elements(By.CSS_SELECTOR, "a[href*='/p/']")
-            post_urls = [post.get_attribute('href') for post in post_elements]
-            log(TAG, LogType.INFO, f"Posts fetched: {len(post_urls)}")
-            return post_urls
-        except Exception as e:
-            log(TAG, LogType.ERROR, f"An error occurred while fetching posts: {e}")
-
     def _scroll_page(self, n=5):
         """
         Scrolls the page n times.
@@ -166,7 +154,7 @@ class InstagramService:
         """
         try:
             _scroll_to_bottom()
-            post_elements = self.driver.find_elements(By.CSS_SELECTOR, "a[href*='/p/']")
+            post_elements = driver.find_elements(By.XPATH, "//a[contains(@href, '/p/') or contains(@href, '/reel/')]")
             post_urls = [post.get_attribute("href") for post in post_elements]
             log(TAG, LogType.INFO, f"Posts fetched: {len(post_urls)}")
             return post_urls
@@ -324,4 +312,49 @@ class InstagramService:
             except Exception as e:
                 log(TAG, LogType.INFO, "Profile is not verified.")
                 return False
+
+        def parse_home(self):
+            """
+            Parses the home page of the application.
+            """
+            InstagramService.navigate_to_home() 
+            post_urls = InstagramService._get_posts_urls()
+            post_details_home = []
+            for url in post_urls:
+                try:
+                    info = InstagramService._extract_post_details(url)   
+                    post_details_home.append(info)
+                except Exception as _:
+                    print("\n")
+            return post_details_home
+
+        def parse_explore(self):
+            """
+            Parses the explore page of the application.
+            """
+            InstagramService.navigate_to_explore()
+            post_urls = InstagramService._get_posts_urls()
+            post_details_explore = []
+            for url in post_urls:
+                try:
+                    info = InstagramService._extract_post_details(url)
+                    post_details_explore.append(info)
+                except Exception as _:
+                    print("\n")
+            return post_details_explore
+
+        def parse_profile(self):
+            """
+            Parses the profile page of the application.
+            """
+            InstagramService.navigate_to_profile()
+            post_urls = InstagramService._get_posts_urls()
+            post_details_profile = []
+            for url in post_urls:
+                try:
+                    info = InstagramService._extract_post_details(url)
+                    post_details_profile.append(info)
+                except Exception as _:
+                    print("\n")
+            return post_details_profile
         
