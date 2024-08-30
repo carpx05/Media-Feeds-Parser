@@ -194,178 +194,216 @@ class InstagramService:
         except Exception as e:
             log(TAG, LogType.ERROR, f"An error occurred while scrolling to the bottom: {e}")
 
-        def _extract_post_details(self, post_url):
-            """
-            Extracts the details from a post.
-            WARNING: This method only gives the media URL of the first slide of a carousel post.
-            """
+    def _extract_post_details(self, post_url):
+        """
+        Extracts the details from a post.
+        WARNING: This method only gives the media URL of the first slide of a carousel post.
+        """
+        try:
+            self.driver.get(post_url)
+            time.sleep(2)
+            username = self._extract_post_username()
+            media_url = self._extract_post_media_url()
+            time_posted = self._extract_post_time_posted()
+            likes = self._extract_post_likes()
+            location = self._extract_post_location()
+            blue_tick = self._is_post_profile_verified()
+            caption = self._extract_post_caption()
+            # todo: Extract comments and hashtags
+            post_details = {
+                "username": username,
+                "blue_tick": blue_tick,
+                "media_url": media_url,
+                "time_posted": time_posted,
+                "likes": likes,
+                "location": location,
+                "caption": caption,
+            }
+            
+            log(TAG, LogType.INFO, f"Details extracted: {post_details}")
+            return post_details
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred while extracting details: {e}")
+
+    def _extract_post_username(self):
+        """
+        Extracts the username from a post.
+        """
+        try:
+            username = driver.find_element(By.XPATH, '//span[contains(@class, "_ap3a _aaco _aacw _aacx _aad7 _aade")]')
+            log(TAG, LogType.INFO, f"Username extracted: {username.text}")
+            return username.text
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred while extracting username: {e}")
+            return None
+
+    def _extract_post_media_url(self):
+        """
+        Extracts the media from a post.
+        Can be either an image or a video.
+        Returns:
+            str: The URL of the image or BLOB of the video.
+        """
+        try: 
+            video_element = driver.find_element(By.XPATH, '//video[@class="x1lliihq x5yr21d xh8yej3"]')
+            video_url = video_element.get_attribute("src")
+            log(TAG, LogType.INFO, f"Media extracted, video: {video_url}")
+            return media_url
+        except Exception as e:
+            image_element = driver.find_element(By.XPATH, '//img[@class="x5yr21d xu96u03 x10l6tqk x13vifvy x87ps6o xh8yej3"]')
+            image_url = image_element.get_attribute('src')
+            log(TAG, LogType.INFO, f"Media extracted, image: {image_url}")
+            return image_url
+    
+    def _extract_post_time_posted(self):
+        """
+        Extracts the times posted from a post.
+        """
+        try:
+            time_element = driver.find_element(By.XPATH, '//time[@class="x1p4m5qa"]')
+            time_posted = time_element.get_attribute("datetime")
+            log(TAG, LogType.INFO, f"Time posted: {time_posted}")
+            return time_posted
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred while extracting time posted: {e}")
+            return None
+            
+    def _extract_post_likes(self):
+        """
+        Extracts the number of likes from a post.
+        """
+        try:
+            likes_element = likes = driver.find_element(By.XPATH, '//span[contains(@class, "xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x1hl2dhg x16tdsg8 x1vvkbs")]')
+            likes = likes_element.text
+            log(TAG, LogType.INFO, f"Likes extracted: {likes}")
+            return likes
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred while extracting likes: {e}")
+            return None
+
+    def _extract_post_caption(self):
+        """
+        Extracts the caption from a post.
+        """
+        try:
+            caption_element = driver.find_element(By.XPATH, "//span[contains(@class, 'x193iq5w xeuugli x1fj9vlw x13faqbe x1vvkbs xt0psk2 x1i0vuye xvs91rp xo1l8bm x5n08af x10wh9bi x1wdrske x8viiok x18hxmgj')]")
+            caption = caption_element.text
+            log(TAG, LogType.INFO, f"Caption extracted: {caption}")
+            return caption
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred while extracting caption: {e}")
+            return None
+
+    def _extract_post_location(self):
+        """
+        Extracts the location from a post.
+        """
+        try:
+            location_element = driver.find_element(By.CSS_SELECTOR, "a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz.x5n08af.x9n4tj2._a6hd")
+            location = location_element.text
+            log(TAG, LogType.INFO, f"Location extracted: {location}")
+            return location
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred while extracting location: {e}")
+            return None
+
+    def _is_post_profile_verified(self):
+        """
+        Checks if the profile is verified.
+        """
+        try:
+            svg_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'svg.x1lliihq.x1n2onr6[aria-label="Verified"]')))
+
+            # Extract the text from the aria-label attribute
+            if "Verified" == svg_element.get_attribute('aria-label'):
+                log(TAG, LogType.INFO, "Profile is verified.")                    
+                return True
+            log(TAG, LogType.INFO, "Profile is not verified.")
+            return False
+        except Exception as e:
+            log(TAG, LogType.INFO, "Profile is not verified.")
+            return False
+
+    def _click_on_saved_post_container(self):
+        """
+        Clicks on the saved posts container.
+        """
+        try:
+            span_element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[contains(@class, 'x1lliihq') and text()='All posts']")))
+            span_element.click()
+            log(TAG, LogType.INFO, "Clicked on saved posts container.")
+        except Exception as e:  
+            log(TAG, LogType.ERROR, f"An error occurred while clicking on saved posts container: {e}")
+    
+    def _click_on_saved_post_section(self):
+        """
+        Clicks on the saved posts section.
+        """
+        try:
+            span_element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[contains(@class, 'x972fbf') and text()='Saved']")))
+            span_element.click()
+            log(TAG, LogType.INFO, "Clicked on saved posts section.")
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred while clicking on saved posts section: {e}")
+
+    def parse_home(self):
+        """
+        Parses the home page of the application.
+        """
+        InstagramService.navigate_to_home() 
+        post_urls = InstagramService._get_posts_urls()
+        post_details_home = []
+        for url in post_urls:
             try:
-                self.driver.get(post_url)
-                time.sleep(2)
-                username = self._extract_post_username()
-                media_url = self._extract_post_media_url()
-                time_posted = self._extract_post_time_posted()
-                likes = self._extract_post_likes()
-                location = self._extract_post_location()
-                blue_tick = self._is_post_profile_verified()
-                caption = self._extract_post_caption()
-                # todo: Extract comments and hashtags
-                post_details = {
-                    "username": username,
-                    "blue_tick": blue_tick,
-                    "media_url": media_url,
-                    "time_posted": time_posted,
-                    "likes": likes,
-                    "location": location,
-                    "caption": caption,
-                }
-                
-                log(TAG, LogType.INFO, f"Details extracted: {post_details}")
-                return post_details
-            except Exception as e:
-                log(TAG, LogType.ERROR, f"An error occurred while extracting details: {e}")
+                info = InstagramService._extract_post_details(url)   
+                post_details_home.append(info)
+            except Exception as _:
+                print("\n")
+        return post_details_home
 
-        def _extract_post_username(self):
-            """
-            Extracts the username from a post.
-            """
+    def parse_explore(self):
+        """
+        Parses the explore page of the application.
+        """
+        InstagramService.navigate_to_explore()
+        post_urls = InstagramService._get_posts_urls()
+        post_details_explore = []
+        for url in post_urls:
             try:
-                username = driver.find_element(By.XPATH, '//span[contains(@class, "_ap3a _aaco _aacw _aacx _aad7 _aade")]')
-                log(TAG, LogType.INFO, f"Username extracted: {username.text}")
-                return username.text
-            except Exception as e:
-                log(TAG, LogType.ERROR, f"An error occurred while extracting username: {e}")
-                return None
+                info = InstagramService._extract_post_details(url)
+                post_details_explore.append(info)
+            except Exception as _:
+                print("\n")
+        return post_details_explore
 
-        def _extract_post_media_url(self):
-            """
-            Extracts the media from a post.
-            Can be either an image or a video.
-            Returns:
-                str: The URL of the image or BLOB of the video.
-            """
-            try: 
-                video_element = driver.find_element(By.XPATH, '//video[@class="x1lliihq x5yr21d xh8yej3"]')
-                video_url = video_element.get_attribute("src")
-                log(TAG, LogType.INFO, f"Media extracted, video: {video_url}")
-                return media_url
-            except Exception as e:
-                image_element = driver.find_element(By.XPATH, '//img[@class="x5yr21d xu96u03 x10l6tqk x13vifvy x87ps6o xh8yej3"]')
-                image_url = image_element.get_attribute('src')
-                log(TAG, LogType.INFO, f"Media extracted, image: {image_url}")
-                return image_url
-        
-        def _extract_post_time_posted(self):
-            """
-            Extracts the times posted from a post.
-            """
+    def parse_profile(self):
+        """
+        Parses the profile page of the application.
+        """
+        InstagramService.navigate_to_profile()
+        post_urls = InstagramService._get_posts_urls()
+        post_details_profile = []
+        for url in post_urls:
             try:
-                time_element = driver.find_element(By.XPATH, '//time[@class="x1p4m5qa"]')
-                time_posted = time_element.get_attribute("datetime")
-                log(TAG, LogType.INFO, f"Time posted: {time_posted}")
-                return time_posted
-            except Exception as e:
-                log(TAG, LogType.ERROR, f"An error occurred while extracting time posted: {e}")
-                return None
-                
-        def _extract_post_likes(self):
-            """
-            Extracts the number of likes from a post.
-            """
+                info = InstagramService._extract_post_details(url)
+                post_details_profile.append(info)
+            except Exception as _:
+                print("\n")
+        return post_details_profile
+
+    def parse_saved(self):
+        """
+        Parses the saved posts of the application.
+        """
+        InstagramService.navigate_to_profile()
+        InstagramService._click_on_saved_post_container()
+        InstagramService._click_on_saved_post_section()
+        post_urls = InstagramService._get_posts_urls()
+        post_details_saved = []
+        for url in post_urls:
             try:
-                likes_element = likes = driver.find_element(By.XPATH, '//span[contains(@class, "xdj266r x11i5rnm xat24cr x1mh8g0r xexx8yu x4uap5 x18d9i69 xkhd6sd x1hl2dhg x16tdsg8 x1vvkbs")]')
-                likes = likes_element.text
-                log(TAG, LogType.INFO, f"Likes extracted: {likes}")
-                return likes
-            except Exception as e:
-                log(TAG, LogType.ERROR, f"An error occurred while extracting likes: {e}")
-                return None
-
-        def _extract_post_caption(self):
-            """
-            Extracts the caption from a post.
-            """
-            try:
-                caption_element = driver.find_element(By.XPATH, "//span[contains(@class, 'x193iq5w xeuugli x1fj9vlw x13faqbe x1vvkbs xt0psk2 x1i0vuye xvs91rp xo1l8bm x5n08af x10wh9bi x1wdrske x8viiok x18hxmgj')]")
-                caption = caption_element.text
-                log(TAG, LogType.INFO, f"Caption extracted: {caption}")
-                return caption
-            except Exception as e:
-                log(TAG, LogType.ERROR, f"An error occurred while extracting caption: {e}")
-                return None
-
-        def _extract_post_location(self):
-            """
-            Extracts the location from a post.
-            """
-            try:
-                location_element = driver.find_element(By.CSS_SELECTOR, "a.x1i10hfl.xjbqb8w.x1ejq31n.xd10rxx.x1sy0etr.x17r0tee.x972fbf.xcfux6l.x1qhh985.xm0m39n.x9f619.x1ypdohk.xt0psk2.xe8uvvx.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x16tdsg8.x1hl2dhg.xggy1nq.x1a2a7pz.x5n08af.x9n4tj2._a6hd")
-                location = location_element.text
-                log(TAG, LogType.INFO, f"Location extracted: {location}")
-                return location
-            except Exception as e:
-                log(TAG, LogType.ERROR, f"An error occurred while extracting location: {e}")
-                return None
-
-        def _is_post_profile_verified(self):
-            """
-            Checks if the profile is verified.
-            """
-            try:
-                svg_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'svg.x1lliihq.x1n2onr6[aria-label="Verified"]')))
-
-                # Extract the text from the aria-label attribute
-                if "Verified" == svg_element.get_attribute('aria-label'):
-                    log(TAG, LogType.INFO, "Profile is verified.")                    
-                    return True
-                log(TAG, LogType.INFO, "Profile is not verified.")
-                return False
-            except Exception as e:
-                log(TAG, LogType.INFO, "Profile is not verified.")
-                return False
-
-        def parse_home(self):
-            """
-            Parses the home page of the application.
-            """
-            InstagramService.navigate_to_home() 
-            post_urls = InstagramService._get_posts_urls()
-            post_details_home = []
-            for url in post_urls:
-                try:
-                    info = InstagramService._extract_post_details(url)   
-                    post_details_home.append(info)
-                except Exception as _:
-                    print("\n")
-            return post_details_home
-
-        def parse_explore(self):
-            """
-            Parses the explore page of the application.
-            """
-            InstagramService.navigate_to_explore()
-            post_urls = InstagramService._get_posts_urls()
-            post_details_explore = []
-            for url in post_urls:
-                try:
-                    info = InstagramService._extract_post_details(url)
-                    post_details_explore.append(info)
-                except Exception as _:
-                    print("\n")
-            return post_details_explore
-
-        def parse_profile(self):
-            """
-            Parses the profile page of the application.
-            """
-            InstagramService.navigate_to_profile()
-            post_urls = InstagramService._get_posts_urls()
-            post_details_profile = []
-            for url in post_urls:
-                try:
-                    info = InstagramService._extract_post_details(url)
-                    post_details_profile.append(info)
-                except Exception as _:
-                    print("\n")
-            return post_details_profile
-        
+                info = InstagramService._extract_post_details(url)
+                post_details_saved.append(info)
+            except Exception as _:
+                print("\n")
+        return post_details_saved
