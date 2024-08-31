@@ -27,7 +27,7 @@ def get_all_instagram():
             log(TAG, LogType.ERROR, "Failed to parse explore data")
 
         try:
-            parsed_profile_data = InstagramService.parse_profile()
+            parsed_profile_data = InstagramService.parse_profile(username)
         except Exception as _:
             parsed_profile_data = None
             log(TAG, LogType.ERROR, "Failed to parse profile data")
@@ -100,7 +100,7 @@ def get_profile_instagram():
         InstagramService.perform_login(username, password)
 
         try:
-            parsed_profile_data = InstagramService.parse_profile()
+            parsed_profile_data = InstagramService.parse_profile(username)
         except Exception as _:
             parsed_profile_data = None
             log(TAG, LogType.ERROR, "Failed to parse profile data")

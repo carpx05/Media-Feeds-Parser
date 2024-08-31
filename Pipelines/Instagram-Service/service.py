@@ -155,12 +155,12 @@ class InstagramService:
                 f"An error occurred while navigating to the login activity page: {e}",
             )
 
-    def navigate_to_profile(self):
+    def navigate_to_profile(self, username):
         """
         Navigates to the profile page of the application.
         """
         try:
-            self.driver.get(f"https://www.instagram.com/{Config.PROFILE_INSTAGRAM}/")
+            self.driver.get(f"https://www.instagram.com/{username}/")
             log(TAG, LogType.INFO, "Navigated, Instagram Profile.")
         except Exception as e:
             log(
@@ -494,6 +494,8 @@ class InstagramService:
     def _get_location_map(self):
         """
         Fetches the location map from the application.
+        Returns:
+            list: A list of dictionaries containing the location map urls. {"mid_leaf": str, "right_leaf": str, "left_leaf": str}
         """
         try:
             parent_divs = driver.find_elements(
@@ -597,11 +599,11 @@ class InstagramService:
                 print("\n")
         return post_details_explore
 
-    def parse_profile(self):
+    def parse_profile(self, user):
         """
         Parses the profile page of the application.
         """
-        self.navigate_to_explore()
+        self.navigate_to_profile(user)
         profile_posts = self._parse_profile()
         tagged_posts = self._parse_tagged()
         saved_posts = self._parse_saved()
