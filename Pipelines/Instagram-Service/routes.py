@@ -32,16 +32,28 @@ def get_all_instagram():
             parsed_profile_data = None
             log(TAG, LogType.ERROR, "Failed to parse profile data")
 
-        return jsonify({
-            "home": parsed_home_data,
-            "explore": parsed_explore_data,
-            "profile": parsed_profile_data,
-        }), 200
+        try:
+            login_activity = InstagramService.parse_login_activity()
+        except Exception as _:
+            login_activity = None
+            log(TAG, LogType.ERROR, "Failed to parse login activity")
+
+        return (
+            jsonify(
+                {
+                    "home": parsed_home_data,
+                    "explore": parsed_explore_data,
+                    "profile": parsed_profile_data,
+                    "login_activity": login_activity,
+                }
+            ),
+            200,
+        )
 
     except Exception as _:
         return jsonify({"error": "Invalid credentials"}), 400
 
-    
+
 @instagram_bp.route("/instagram/home", methods=["GET"])
 def get_home_instagram():
     try:
@@ -55,9 +67,7 @@ def get_home_instagram():
             parsed_home_data = None
             log(TAG, LogType.ERROR, "Failed to parse home data")
 
-        return jsonify({
-            "home": parsed_home_data
-        }), 200
+        return jsonify({"home": parsed_home_data}), 200
 
     except Exception as _:
         return jsonify({"error": "Invalid credentials"}), 400
@@ -76,9 +86,7 @@ def get_explore_instagram():
             parsed_explore_data = None
             log(TAG, LogType.ERROR, "Failed to parse explore data")
 
-        return jsonify({
-            "explore": parsed_explore_data
-        }), 200
+        return jsonify({"explore": parsed_explore_data}), 200
 
     except Exception as _:
         return jsonify({"error": "Invalid credentials"}), 400
@@ -97,9 +105,26 @@ def get_profile_instagram():
             parsed_profile_data = None
             log(TAG, LogType.ERROR, "Failed to parse profile data")
 
-        return jsonify({
-            "profile": parsed_profile_data
-        }), 200
+        return jsonify({"profile": parsed_profile_data}), 200
+
+    except Exception as _:
+        return jsonify({"error": "Invalid credentials"}), 400
+
+
+@instagram_bp.route("/instagram/login-activity", methods=["GET"])
+def get_login_activity():
+    try:
+        username = request.args.get("username")
+        password = request.args.get("password")
+        InstagramService.perform_login(username, password)
+
+        try:
+            login_activity = InstagramService.parse_login_activity()
+        except Exception as _:
+            login_activity = None
+            log(TAG, LogType.ERROR, "Failed to parse login activity")
+
+        return jsonify({"login_activity": login_activity}), 200
 
     except Exception as _:
         return jsonify({"error": "Invalid credentials"}), 400
