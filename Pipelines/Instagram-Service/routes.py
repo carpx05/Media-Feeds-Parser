@@ -35,7 +35,7 @@ def get_all_instagram():
         return jsonify({
             "home": parsed_home_data,
             "explore": parsed_explore_data,
-            "profile": parsed_profile_data
+            "profile": parsed_profile_data,
         }), 200
 
     except Exception as _:

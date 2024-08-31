@@ -346,12 +346,23 @@ class InstagramService:
         except Exception as e:
             log(TAG, LogType.ERROR, f"An error occurred while clicking on saved posts section: {e}")
 
+    def _click_on_tagged_section(self):
+        """
+        Clicks on the tagged posts section.
+        """
+        try:
+            span_element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//span[contains(@class, 'x972fbf') and text()='Tagged']")))
+            span_element.click()
+            log(TAG, LogType.INFO, "Clicked on tagged posts section.")
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred while clicking on tagged posts section: {e}")
+
     def parse_home(self):
         """
         Parses the home page of the application.
         """
-        InstagramService.navigate_to_home() 
-        post_urls = InstagramService._get_posts_urls()
+        self.navigate_to_home() 
+        post_urls = self._get_posts_urls()
         post_details_home = []
         for url in post_urls:
             try:
@@ -365,12 +376,12 @@ class InstagramService:
         """
         Parses the explore page of the application.
         """
-        InstagramService.navigate_to_explore()
-        post_urls = InstagramService._get_posts_urls()
+        self.navigate_to_explore()
+        post_urls = self._get_posts_urls()
         post_details_explore = []
         for url in post_urls:
             try:
-                info = InstagramService._extract_post_details(url)
+                info = self._extract_post_details(url)
                 post_details_explore.append(info)
             except Exception as _:
                 print("\n")
@@ -380,29 +391,43 @@ class InstagramService:
         """
         Parses the profile page of the application.
         """
-        InstagramService.navigate_to_profile()
-        post_urls = InstagramService._get_posts_urls()
+        self.navigate_to_explore()
+        profile_posts = self._parse_profile()
+        tagged_posts = self._parse_tagged()
+        saved_posts = self._parse_saved()
+        
+        return {
+            "profile": profile_posts,
+            "tagged": tagged_posts,
+            "saved": saved_posts
+        }
+
+    def _parse_profile(self):
+        """
+        Parses the posts on profile page of the application.
+        """
+        post_urls = self._get_posts_urls()
         post_details_profile = []
         for url in post_urls:
             try:
-                info = InstagramService._extract_post_details(url)
+                info = self._extract_post_details(url)
                 post_details_profile.append(info)
             except Exception as _:
                 print("\n")
+        
         return post_details_profile
 
-    def parse_saved(self):
+    def _parse_saved(self):
         """
-        Parses the saved posts of the application.
+        Parses the saved posts on profile page of the application.
         """
-        InstagramService.navigate_to_profile()
-        InstagramService._click_on_saved_post_container()
-        InstagramService._click_on_saved_post_section()
+        self._click_on_saved_post_container()
+        self._click_on_saved_post_section()
         post_urls = InstagramService._get_posts_urls()
         post_details_saved = []
         for url in post_urls:
             try:
-                info = InstagramService._extract_post_details(url)
+                info = self._extract_post_details(url)
                 post_details_saved.append(info)
             except Exception as _:
                 print("\n")
