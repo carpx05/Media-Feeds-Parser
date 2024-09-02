@@ -803,6 +803,14 @@ class InstagramService:
                 print("\n")
         return post_details_saved
 
+    def _parse_following_and_followers(self):
+        """
+        Parses the following and followers on profile page of the application.
+        """
+        followers = self.get_followers_names()
+        following = self.get_following_names()
+        return {"followers": followers, "following": following}
+
     def _parse_profile(self):
         """
         Parses the posts on profile page of the application.
@@ -856,8 +864,14 @@ class InstagramService:
         profile_posts = self._parse_profile()
         tagged_posts = self._parse_tagged()
         saved_posts = self._parse_saved()
+        followers_following = self._parse_following_and_followers()
 
-        return {"profile": profile_posts, "tagged": tagged_posts, "saved": saved_posts}
+        return {
+            "profile": profile_posts,
+            "tagged": tagged_posts,
+            "saved": saved_posts,
+            "followers_following": followers_following,
+        }
 
     def parse_login_activity(self):
         """
