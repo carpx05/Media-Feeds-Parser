@@ -160,13 +160,97 @@ class InstagramService:
         Navigates to the profile page of the application.
         """
         try:
-            self.driver.get(f"https://www.instagram.com/{username}/")
+            self.driver.get(f"{Config.HOME_INSTAGRAM}/{username}/")
             log(TAG, LogType.INFO, "Navigated, Instagram Profile.")
         except Exception as e:
             log(
                 TAG,
                 LogType.ERROR,
                 f"An error occurred while navigating to the profile page: {e}",
+            )
+
+    def navigate_to_interactions_story_replies(self):
+        """
+        Navigates to the interactions story replies page of the application.
+        """
+        try:
+            self.driver.get(Config.INTERACTIONS_STORY_REPLIES_INSTAGRAM)
+            log(TAG, LogType.INFO, "Navigated, Instagram Interactions Story Replies.")
+        except Exception as e:
+            log(
+                TAG,
+                LogType.ERROR,
+                f"An error occurred while navigating to the interactions story replies page: {e}",
+            )
+
+    def navigate_to_interactions_reviews(self):
+        """
+        Navigates to the interactions reviews page of the application.
+        """
+        try:
+            self.driver.get(Config.INTERACTIONS_REVIEWS_INSTAGRAM)
+            log(TAG, LogType.INFO, "Navigated, Instagram Interactions Reviews.")
+        except Exception as e:
+            log(
+                TAG,
+                LogType.ERROR,
+                f"An error occurred while navigating to the interactions reviews page: {e}",
+            )
+        
+    def navigate_to_followers(self, username):
+        """
+        Navigates to the followers page of the application.
+        """
+        try:
+            self.driver.get(f"{Config.HOME_INSTAGRAM}/{username}/followers/")
+            log(TAG, LogType.INFO, "Navigated, Instagram Followers.")
+        except Exception as e:
+            log(
+                TAG,
+                LogType.ERROR,
+                f"An error occurred while navigating to the followers page: {e}",
+            )
+
+    def navigate_to_following(self, username):
+        """
+        Navigates to the following page of the application.
+        """
+        try:
+            self.driver.get(f"{Config.HOME_INSTAGRAM}/{username}/following/")
+            log(TAG, LogType.INFO, "Navigated, Instagram Following.")
+        except Exception as e:
+            log(
+                TAG,
+                LogType.ERROR,
+                f"An error occurred while navigating to the following page: {e}",
+            )
+    
+    def navigate_to_interactions_comments(self):
+        """
+        Navigates to the interactions comments page of the application.
+        """
+        try:
+            self.driver.get(Config.INTERACTIONS_COMMENTS_INSTAGRAM)
+            log(TAG, LogType.INFO, "Navigated, Instagram Interactions Comments.")
+        except Exception as e:
+            log(
+                TAG,
+                LogType.ERROR,
+                f"An error occurred while navigating to the interactions comments page: {e}",
+            )
+
+    def navigate_to_interactions_likes(self):
+        """
+        Navigates to the interactions likes page of the application.
+        """
+        try:
+            self.driver.get(Config.INTERACTIONS_LIKES_INSTAGRAM)
+            log(TAG, LogType.INFO, "Navigated, Instagram Interactions Likes.")
+        except Exception as e:
+            log(
+                TAG,
+                LogType.ERROR,
+                f"An error occurred while navigating to the interactions likes page: {e}",
             )
 
     def _scroll_page(self, n=5):
@@ -420,6 +504,22 @@ class InstagramService:
                 f"An error occurred while clicking on saved posts container: {e}",
             )
 
+    def _extract_interactions_likes(self):
+        """
+        Extracts the likes from the interactions page.
+        """
+        try:
+            likes_elements = driver.find_elements(
+                By.XPATH,
+                "//div[contains(@class, 'x1lliihq x5yr21d xh8yej3')]",
+            )
+            likes = [like.text for like in likes_elements]
+            log(TAG, LogType.INFO, f"Likes extracted: {len(likes)}")
+            return likes
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred while extracting likes: {e}")
+            return []
+
     def _click_on_saved_post_section(self):
         """
         Clicks on the saved posts section.
@@ -460,6 +560,45 @@ class InstagramService:
                 LogType.ERROR,
                 f"An error occurred while clicking on tagged posts section: {e}",
             )
+    
+    def _click_on_following_section(self):
+        """
+        Clicks on the followers section.
+        """
+        try:
+            element = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href="/test_sih_dummy/following/"]'))
+            )
+            element.click()
+
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred: {e}")
+
+    def _click_on_followers_section(self):
+        """
+        Clicks on the followers section.
+        """
+        try:
+            element = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href="/test_sih_dummy/followers/"]'))
+            )
+            element.click()
+
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred: {e}")
+
+    def _click_on_close_button(self):
+        """
+        Clicks on the close button in followers/following section.
+        """
+        try:
+            svg_element = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, 'svg[aria-label="Close"]'))
+            )
+            svg_element.click()
+
+        except Exception as e:
+            log(TAG, LogType.ERROR, f"An error occurred: {e}")
 
     def _get_login_details(self):
         """
@@ -538,6 +677,80 @@ class InstagramService:
             login_map = []
             return login_map
 
+    def get_followers_names(self):
+        """
+        Fetches the followers names from the application.
+        """
+        try:
+            self._click_on_followers_section()
+            info = []
+            parent_divs = driver.find_elements(By.CLASS_NAME, "x1dm5mii.x16mil14.xiojian.x1yutycm.x1lliihq.x193iq5w.xh8yej3")
+            for parent_div in parent_divs:
+                follower_data = {}
+                try:
+                    username_element = parent_div.find_element(By.CLASS_NAME, "_ap3a")
+                    follower_data['username'] = username_element.text
+                except Exception as e:
+                    log(TAG, LogType.ERROR, f"An error occurred while fetching followers names: {e}")
+                    follower_data['username'] = None
+
+                try:
+                    name_element = parent_div.find_element(By.CSS_SELECTOR, 'span.x1lliihq.x1plvlek.xryxfnj.x1n2onr6.x193iq5w.xeuugli.x1fj9vlw.x13faqbe.x1vvkbs.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1i0vuye.xvs91rp.xo1l8bm.x1roi4f4.x10wh9bi.x1wdrske.x8viiok.x18hxmgj > span.x1lliihq.x193iq5w.x6ikm8r.x10wlt62.xlyipyv.xuxw1ft')
+                    follower_data['name'] = name_element.text
+                except Exception as e:
+                    log(TAG, LogType.ERROR, f"An error occurred while fetching followers names: {e}")
+                    follower_data['name'] = None
+
+                info = parent_div.find_element(By.CSS_SELECTOR, 'div._ap3a._aaco._aacw._aad6._aade')
+                if info.text in ["Follow", "Requested"]:
+                    break
+                info.append(follower_data)
+            return info
+        except Exception as e:
+            log(
+                TAG,
+                LogType.ERROR,
+                f"An error occurred while fetching followers names: {e}",
+            )
+            return []
+
+    def get_following_names(self):
+        """
+        Fetches the following names from the application.
+        """
+        try:
+            self._click_on_following_section()
+            info = []
+            parent_divs = driver.find_elements(By.CLASS_NAME, "x1dm5mii.x16mil14.xiojian.x1yutycm.x1lliihq.x193iq5w.xh8yej3")
+            for parent_div in parent_divs:
+                following_data = {}
+                try:
+                    username_element = parent_div.find_element(By.CLASS_NAME, "_ap3a")
+                    following_data['username'] = username_element.text
+                except Exception as e:
+                    log(TAG, LogType.ERROR, f"An error occurred while fetching following names: {e}")
+                    following_data['username'] = None
+
+                try:
+                    name_element = parent_div.find_element(By.CSS_SELECTOR, 'span.x1lliihq.x1plvlek.xryxfnj.x1n2onr6.x193iq5w.xeuugli.x1fj9vlw.x13faqbe.x1vvkbs.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1i0vuye.xvs91rp.xo1l8bm.x1roi4f4.x10wh9bi.x1wdrske.x8viiok.x18hxmgj > span.x1lliihq.x193iq5w.x6ikm8r.x10wlt62.xlyipyv.xuxw1ft')
+                    following_data['name'] = name_element.text
+                except Exception as e:
+                    log(TAG, LogType.ERROR, f"An error occurred while fetching following names: {e}")
+                    following_data['name'] = None
+
+                info = parent_div.find_element(By.CSS_SELECTOR, 'div._ap3a._aaco._aacw._aad6._aade')
+                if info.text in ["Follow", "Requested"]:
+                    break
+                info.append(following_data)
+            return info
+        except Exception as e:
+            log(
+                TAG,
+                LogType.ERROR,
+                f"An error occurred while fetching following names: {e}",
+            )
+            return []
+            
     def _parse_saved(self):
         """
         Parses the saved posts on profile page of the application.
@@ -631,3 +844,20 @@ class InstagramService:
             )
             login_activity_data = []
             return login_activity_data
+
+    def parse_interactions(self):
+        """
+        Fetches the interactions from the application.
+        """
+        try:
+            self.navigate_to_interactions_likes()
+            interactions = self._get_interactions()
+            return interactions
+        except Exception as e:
+            log(
+                TAG,
+                LogType.ERROR,
+                f"An error occurred while fetching interactions: {e}",
+            )
+            interactions = []
+            return interactions
