@@ -196,7 +196,7 @@ class InstagramService:
                 LogType.ERROR,
                 f"An error occurred while navigating to the interactions reviews page: {e}",
             )
-        
+
     def navigate_to_followers(self, username):
         """
         Navigates to the followers page of the application.
@@ -224,7 +224,7 @@ class InstagramService:
                 LogType.ERROR,
                 f"An error occurred while navigating to the following page: {e}",
             )
-    
+
     def navigate_to_interactions_comments(self):
         """
         Navigates to the interactions comments page of the application.
@@ -560,14 +560,16 @@ class InstagramService:
                 LogType.ERROR,
                 f"An error occurred while clicking on tagged posts section: {e}",
             )
-    
+
     def _click_on_following_section(self):
         """
         Clicks on the followers section.
         """
         try:
             element = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href="/test_sih_dummy/following/"]'))
+                EC.element_to_be_clickable(
+                    (By.CSS_SELECTOR, 'a[href="/test_sih_dummy/following/"]')
+                )
             )
             element.click()
 
@@ -580,7 +582,9 @@ class InstagramService:
         """
         try:
             element = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[href="/test_sih_dummy/followers/"]'))
+                EC.element_to_be_clickable(
+                    (By.CSS_SELECTOR, 'a[href="/test_sih_dummy/followers/"]')
+                )
             )
             element.click()
 
@@ -684,24 +688,40 @@ class InstagramService:
         try:
             self._click_on_followers_section()
             info = []
-            parent_divs = driver.find_elements(By.CLASS_NAME, "x1dm5mii.x16mil14.xiojian.x1yutycm.x1lliihq.x193iq5w.xh8yej3")
+            parent_divs = driver.find_elements(
+                By.CLASS_NAME,
+                "x1dm5mii.x16mil14.xiojian.x1yutycm.x1lliihq.x193iq5w.xh8yej3",
+            )
             for parent_div in parent_divs:
                 follower_data = {}
                 try:
                     username_element = parent_div.find_element(By.CLASS_NAME, "_ap3a")
-                    follower_data['username'] = username_element.text
+                    follower_data["username"] = username_element.text
                 except Exception as e:
-                    log(TAG, LogType.ERROR, f"An error occurred while fetching followers names: {e}")
-                    follower_data['username'] = None
+                    log(
+                        TAG,
+                        LogType.ERROR,
+                        f"An error occurred while fetching followers names: {e}",
+                    )
+                    follower_data["username"] = None
 
                 try:
-                    name_element = parent_div.find_element(By.CSS_SELECTOR, 'span.x1lliihq.x1plvlek.xryxfnj.x1n2onr6.x193iq5w.xeuugli.x1fj9vlw.x13faqbe.x1vvkbs.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1i0vuye.xvs91rp.xo1l8bm.x1roi4f4.x10wh9bi.x1wdrske.x8viiok.x18hxmgj > span.x1lliihq.x193iq5w.x6ikm8r.x10wlt62.xlyipyv.xuxw1ft')
-                    follower_data['name'] = name_element.text
+                    name_element = parent_div.find_element(
+                        By.CSS_SELECTOR,
+                        "span.x1lliihq.x1plvlek.xryxfnj.x1n2onr6.x193iq5w.xeuugli.x1fj9vlw.x13faqbe.x1vvkbs.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1i0vuye.xvs91rp.xo1l8bm.x1roi4f4.x10wh9bi.x1wdrske.x8viiok.x18hxmgj > span.x1lliihq.x193iq5w.x6ikm8r.x10wlt62.xlyipyv.xuxw1ft",
+                    )
+                    follower_data["name"] = name_element.text
                 except Exception as e:
-                    log(TAG, LogType.ERROR, f"An error occurred while fetching followers names: {e}")
-                    follower_data['name'] = None
+                    log(
+                        TAG,
+                        LogType.ERROR,
+                        f"An error occurred while fetching followers names: {e}",
+                    )
+                    follower_data["name"] = None
 
-                info = parent_div.find_element(By.CSS_SELECTOR, 'div._ap3a._aaco._aacw._aad6._aade')
+                info = parent_div.find_element(
+                    By.CSS_SELECTOR, "div._ap3a._aaco._aacw._aad6._aade"
+                )
                 if info.text in ["Follow", "Requested"]:
                     break
                 info.append(follower_data)
@@ -721,24 +741,40 @@ class InstagramService:
         try:
             self._click_on_following_section()
             info = []
-            parent_divs = driver.find_elements(By.CLASS_NAME, "x1dm5mii.x16mil14.xiojian.x1yutycm.x1lliihq.x193iq5w.xh8yej3")
+            parent_divs = driver.find_elements(
+                By.CLASS_NAME,
+                "x1dm5mii.x16mil14.xiojian.x1yutycm.x1lliihq.x193iq5w.xh8yej3",
+            )
             for parent_div in parent_divs:
                 following_data = {}
                 try:
                     username_element = parent_div.find_element(By.CLASS_NAME, "_ap3a")
-                    following_data['username'] = username_element.text
+                    following_data["username"] = username_element.text
                 except Exception as e:
-                    log(TAG, LogType.ERROR, f"An error occurred while fetching following names: {e}")
-                    following_data['username'] = None
+                    log(
+                        TAG,
+                        LogType.ERROR,
+                        f"An error occurred while fetching following names: {e}",
+                    )
+                    following_data["username"] = None
 
                 try:
-                    name_element = parent_div.find_element(By.CSS_SELECTOR, 'span.x1lliihq.x1plvlek.xryxfnj.x1n2onr6.x193iq5w.xeuugli.x1fj9vlw.x13faqbe.x1vvkbs.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1i0vuye.xvs91rp.xo1l8bm.x1roi4f4.x10wh9bi.x1wdrske.x8viiok.x18hxmgj > span.x1lliihq.x193iq5w.x6ikm8r.x10wlt62.xlyipyv.xuxw1ft')
-                    following_data['name'] = name_element.text
+                    name_element = parent_div.find_element(
+                        By.CSS_SELECTOR,
+                        "span.x1lliihq.x1plvlek.xryxfnj.x1n2onr6.x193iq5w.xeuugli.x1fj9vlw.x13faqbe.x1vvkbs.x1s928wv.xhkezso.x1gmr53x.x1cpjm7i.x1fgarty.x1943h6x.x1i0vuye.xvs91rp.xo1l8bm.x1roi4f4.x10wh9bi.x1wdrske.x8viiok.x18hxmgj > span.x1lliihq.x193iq5w.x6ikm8r.x10wlt62.xlyipyv.xuxw1ft",
+                    )
+                    following_data["name"] = name_element.text
                 except Exception as e:
-                    log(TAG, LogType.ERROR, f"An error occurred while fetching following names: {e}")
-                    following_data['name'] = None
+                    log(
+                        TAG,
+                        LogType.ERROR,
+                        f"An error occurred while fetching following names: {e}",
+                    )
+                    following_data["name"] = None
 
-                info = parent_div.find_element(By.CSS_SELECTOR, 'div._ap3a._aaco._aacw._aad6._aade')
+                info = parent_div.find_element(
+                    By.CSS_SELECTOR, "div._ap3a._aaco._aacw._aad6._aade"
+                )
                 if info.text in ["Follow", "Requested"]:
                     break
                 info.append(following_data)
@@ -750,7 +786,7 @@ class InstagramService:
                 f"An error occurred while fetching following names: {e}",
             )
             return []
-            
+
     def _parse_saved(self):
         """
         Parses the saved posts on profile page of the application.
