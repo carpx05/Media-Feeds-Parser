@@ -19,7 +19,7 @@ in-progress
 
 ## Media Supported
 - Twitter 🚧
-- Instagram 🚧
+- Instagram 
 
 ## Installation
 1. Clone the repository:
